@@ -53,9 +53,6 @@ class webtoonRip:
         for child in issuesOnPage.children:  
             if (str(child)) != "\n":
                 issues.append(str(child.a['href']))
-                file1 = open("EpisodeList.txt", "a")  # append mode
-                file1.write(str(child.a['href']) + " \n")
-                file1.close()
                 if child['data-episode-no'] == "1":
                     return issues
                 i = i+1
