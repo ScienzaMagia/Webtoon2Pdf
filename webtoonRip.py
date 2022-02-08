@@ -13,21 +13,20 @@ class webtoonRip:
     def main(self):
         url = sys.argv[1]
         
-        with open('url.txt', 'w') as f:
-            f.write(requests.get(url, headers={'referer': 'webtoons.com'}).text)
+        
         
         #determines if url is a table of contents, a specific issue, or neither
         
         if url.find("page=") != -1:
-            #print ("Title Page")
             issues = self.findIssues(url,[])
+            print("\n")
             i = len(issues) -1
             while i >= 0:
+                print("Episode: " + str(len(issues)-i) + "/" + str(len(issues)))
                 self.issueGrab(issues[i])
                 i = i-1
             
         elif url.find("episode_no=") != -1:
-            #print ("Episode")
             self.issueGrab(url)
         else:
             print ("Invalid link")
@@ -42,6 +41,7 @@ class webtoonRip:
     #Crawls through the episode lists to grab a complete list of issues.
     def findIssues(self, url, issues):
         #finds page number from url
+        print(str(len(issues)).zfill(4) + " episodes found.", end = "\r")  
         pageIndex = int(url.find("page="))
         pageNumber = int(url[pageIndex+5:len(url)])
         strippedUrl = url[0:pageIndex+5]
@@ -57,11 +57,14 @@ class webtoonRip:
             if (str(child)) != "\n":
                 issues.append(str(child.a['href']))
                 if child['data-episode-no'] == "1":
+                    
                     return issues
                 i = i+1
                 
-
+            
+        
         issues = self.findIssues(strippedUrl + str(pageNumber + 1), issues)
+        print(str(len(issues)).zfill(4) + " episodes found.", end = "\r")  
         return issues
         
         
@@ -71,8 +74,8 @@ class webtoonRip:
         infobox = rawHtml.find("div", class_ = "subj_info")
         series = infobox.a['title']
         title = infobox.h1['title']
-        series = re.sub(r'[^a-zA-Z0-9_ .-]','', series)
-        title = re.sub(r'[^a-zA-Z0-9_ .-]','', title)
+        series = re.sub(u'[^a-zA-Z0-9_ .-]','', series).strip()
+        title = re.sub(u'[^a-zA-Z0-9_ .-]','', title).strip()
         print(series + ": " + title)
         directory = "rip/" + series + "/" + title + "/"
         if not os.path.exists(directory + "raw/"):
