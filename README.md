@@ -17,7 +17,7 @@ Hit enter.
 
 
 
-## Use
+## Usage
 
 Run
 
