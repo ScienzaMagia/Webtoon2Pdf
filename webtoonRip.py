@@ -13,10 +13,13 @@ class webtoonRip:
     def main(self):
         url = sys.argv[1]
         
+        with open('url.txt', 'w') as f:
+            f.write(requests.get(url, headers={'referer': 'webtoons.com'}).text)
+        
         #determines if url is a table of contents, a specific issue, or neither
         
         if url.find("page=") != -1:
-            print ("Title Page")
+            #print ("Title Page")
             issues = self.findIssues(url,[])
             i = len(issues) -1
             while i >= 0:
@@ -24,7 +27,7 @@ class webtoonRip:
                 i = i-1
             
         elif url.find("episode_no=") != -1:
-            print ("Episode")
+            #print ("Episode")
             self.issueGrab(url)
         else:
             print ("Invalid link")
@@ -65,10 +68,13 @@ class webtoonRip:
     def issueGrab(self, url):
         response = requests.get(url, headers={'referer': 'webtoons.com'})
         rawHtml = BeautifulSoup(response.content, 'html.parser')
-        title = rawHtml.title.contents[0]
-        print(title)
-        title = re.sub(r'[^a-zA-Z0-9_ ]','', title)
-        directory = "rip/" + title + "/"
+        infobox = rawHtml.find("div", class_ = "subj_info")
+        series = infobox.a['title']
+        title = infobox.h1['title']
+        series = re.sub(r'[^a-zA-Z0-9_ .-]','', series)
+        title = re.sub(r'[^a-zA-Z0-9_ .-]','', title)
+        print(series + ": " + title)
+        directory = "rip/" + series + "/" + title + "/"
         if not os.path.exists(directory + "raw/"):
             os.makedirs(directory + "raw/")
 
@@ -85,7 +91,7 @@ class webtoonRip:
             image2Merge = Image.open(directory + "/raw/" + str(i+1).zfill(4) + ".jpg")
             mergedImage = self.imageStitch(mergedImage, image2Merge)
             image2Merge.close()
-            print(title + " Image: "  + str(i+1).zfill(4) + "/" +  str(len(imagelist)).zfill(4), end = "\r")
+            print(title + " Image: "  + str(i+1) + "/" +  str(len(imagelist)), end = "\r")
             i = i+1
         
         mergedImage.save(directory + title +".jpg", quality=100)
