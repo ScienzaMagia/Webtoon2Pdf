@@ -32,9 +32,6 @@ class webtoonRip:
             print ("Invalid link")
         
         
-        
-        #self.findIssues(url,[])
-        #self.issueGrab(url)
        
         
         
